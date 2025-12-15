@@ -2,7 +2,7 @@
 
 A Full-Stack Slot Machine simulation built with **.NET 8**. This project demonstrates the architecture of a remote game server (RGS), separating the game client from the backend logic.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 * **Frontend:** Blazor WebAssembly (WASM)
     * Custom CSS (No external UI libraries used)
@@ -12,7 +12,7 @@ A Full-Stack Slot Machine simulation built with **.NET 8**. This project demonst
     * Server-side game logic and RNG
 * **Language:** C# (.NET 8)
 
-## 📂 Application Structure
+## Application Structure
 
 The client application is structured into two main distinct areas:
 
@@ -24,10 +24,10 @@ The client application is structured into two main distinct areas:
 
 
 
-[Image of client server architecture diagram]
+![Casino Demo Preview](assets/preview.png)
 
 
-## 📐 Data Flow (Game Logic)
+## Data Flow (Game Logic)
 
 Interaction with the backend occurs specifically when the user is on the **Game Room** page:
 
@@ -37,7 +37,7 @@ Interaction with the backend occurs specifically when the user is on the **Game 
 4.  Server responds with a JSON object containing the reel positions, win amount, and updated balance.
 5.  Client receives the data and renders the visual result (animations and balance update).
 
-## ⚠️ Production vs. Demo Considerations
+## Production vs. Demo Considerations
 
 This project is a **technical demo**. To keep the architecture focused on the core logic, specific design choices were made that differ from a real-money gambling system.
 
