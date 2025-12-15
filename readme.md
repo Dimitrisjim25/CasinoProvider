@@ -1,49 +1,66 @@
-# Casino Provider
+# Slot Machine Simulation – Full Stack .NET 8
 
-A Full-Stack Slot Machine simulation built with **.NET 8**. This project demonstrates the architecture of a remote game server (RGS), separating the game client from the backend logic.
+**Note:** This is a technical simulation/demo project. It does not involve real money and is intended for learning or demonstration purposes only.
+
+A Full-Stack Slot Machine technical demo built with .NET 8, demonstrating a Remote Game Server (RGS) architecture, with clear separation between client-side UI and server-side game logic.
+
+---
 
 ## Tech Stack
 
-* **Frontend:** Blazor WebAssembly (WASM)
-    * Custom CSS (No external UI libraries used)
-    * C# for client-side logic and state management
-* **Backend:** ASP.NET Core Web API
-    * RESTful API endpoints
-    * Server-side game logic and RNG
-* **Language:** C# (.NET 8)
-
-## Application Structure
-
-The client application is structured into two main distinct areas:
-
-1.  **Lobby (Home Page `/`):**
-    The entry point of the application. It serves as a visual landing page featuring the branding, promotional banners, and navigation to the game areas.
-    
-2.  **Game Room (`/casino`):**
-    This is where the actual "Play Slots" experience takes place. This page hosts the Slot Machine component and is the only part of the application that establishes a connection with the RGS Server.
-
-
+| Component | Technology | Details |
+| :--- | :--- | :--- |
+| **Frontend** | Blazor WebAssembly (WASM) | Client-side simulation and UI |
+| | C# | State management and interactions |
+| | Custom CSS | No external UI libraries used |
+| **Backend** | ASP.NET Core Web API | RESTful API endpoints |
+| | Server Logic | Server-side game logic and RNG (Random Number Generator) |
+| **Language** | C# (.NET 8) | - |
+| **Session** | Simulated | Simulated session management (for demo purposes only) |
 
 ![Casino Demo Preview](assets/preview.png)
 
+## Application Structure
 
-## Data Flow (Game Logic)
+The application is divided into two main areas:
 
-Interaction with the backend occurs specifically when the user is on the **Game Room** page:
+### 1. Lobby (`/`)
+* Entry point and landing page.
+* Displays branding, promotional banners, and navigation to game areas.
 
-1.  User clicks the **"SPIN"** button.
-2.  Client sends a `POST` request to the API endpoint (`api/casino/spin`) containing the bet amount.
-3.  **RgsServer** receives the request, executes the RNG (Random Number Generator) to determine symbols, and calculates wins based on the paytable.
-4.  Server responds with a JSON object containing the reel positions, win amount, and updated balance.
-5.  Client receives the data and renders the visual result (animations and balance update).
+### 2. Game Room (`/casino`)
+* Hosts the Slot Machine component.
+* Establishes connection with the RGS Server to fetch simulated results.
 
-## Production vs. Demo Considerations
+---
 
-This project is a **technical demo**. To keep the architecture focused on the core logic, specific design choices were made that differ from a real-money gambling system.
+## Data Flow (Simulation Logic)
 
-In a production environment handling real money, the following security and architectural changes would be implemented:
+The primary interaction follows this flow:
 
-* **State Management:** Currently, the client maintains session state. In a production system, the balance is never trusted from the client side; it is retrieved strictly from a secure database on the server.
-* **Database:** This demo uses in-memory storage. A real system uses a transactional database (SQL Server/PostgreSQL) to ensure ACID compliance for every financial transaction.
-* **Authentication:** Integration with JWT/OAuth to secure endpoints and identify users.
-* **RNG:** Implementation of a certified CSPRNG (Cryptographically Secure Pseudo-Random Number Generator) instead of the standard .NET `Random` class.
+1.  User clicks the "SPIN" button.
+2.  Client sends a POST request to `api/casino/spin` with the simulated bet amount.
+3.  RGS Server executes the RNG to determine reel symbols and calculates simulated wins.
+4.  Server responds with JSON containing:
+    * Reel positions
+    * Simulated win amount
+    * Simulated balance
+5.  Client receives the response and updates UI accordingly (animations, balance display).
+
+> **Important:** All values are simulated for demo purposes only. No real money is involved.
+
+---
+
+## Production Considerations (for real-money systems)
+
+In a real-world environment, additional security and architecture would be required:
+
+* **State Management:** Client session state should never be trusted. Balances are always stored securely on the server.
+* **Database:** Use a transactional database (SQL Server/PostgreSQL) for ACID compliance.
+* **Authentication:** JWT/OAuth to secure endpoints and identify users.
+* **RNG:** Replace .NET Random with a certified Cryptographically Secure PRNG for fair gameplay.
+* **Logging & Audit:** All transactions and game results logged server-side.
+* **Rate Limiting & Security:** To prevent abuse and ensure system stability.
+
+This project is for educational and demonstration purposes only. It does not promote or handle real gambling.
+
