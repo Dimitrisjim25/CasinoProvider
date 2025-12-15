@@ -1,0 +1,441 @@
+@page "/casino"
+@using System.Threading
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@implements IDisposable
+
+<style>
+    :root {
+        --bg-dark: #090909;
+        --bg-panel: #141414;
+        --gold: #deb887;       
+        --gold-bright: #ffd700; 
+        --neon-accent: #00e5ff; 
+        --win-green: #00ff66;
+        --loss-red: #ff3333;
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+    .casino-floor {
+        min-height: 100vh;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .machine-cabinet {
+        position: relative;
+        width: 1000px;
+        max-width: 95vw;
+        background: linear-gradient(180deg, #2b2b2b 0%, #0d0d0d 100%);
+        border: 2px solid var(--gold);
+        border-radius: 30px;
+        box-shadow: 0 0 50px rgba(218, 165, 32, 0.1), inset 0 0 100px rgba(0,0,0,0.8);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .brand-header {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: 10px;
+        background: -webkit-linear-gradient(var(--gold-bright), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .reels-display {
+        display: flex;
+        gap: 20px;
+        padding: 30px;
+        background: #000;
+        border: 4px solid #333;
+        border-radius: 15px;
+        box-shadow: inset 0 0 40px #000;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .reel-box {
+        width: 180px;
+        height: 220px;
+        background: linear-gradient(to bottom, #f0f0f0 0%, #ffffff 50%, #d9d9d9 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 7rem;
+        border: 2px solid #555;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 20px 20px -10px rgba(0,0,0,0.4), inset 0 -20px 20px -10px rgba(0,0,0,0.4);
+    }
+
+    .spinning-reel {
+        color: transparent;
+        text-shadow: 0 0 30px rgba(0,0,0,0.5);
+        animation: blurMove 0.1s infinite;
+    }
+    
+    .symbol-text {
+        z-index: 2;
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dashboard {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 20px;
+        align-items: center;
+        background: #111;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        border-left: 3px solid var(--neon-accent);
+    }
+    
+    .stat-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; color: white; font-family: monospace; }
+    
+    .status-monitor {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .status-main { font-size: 1.4rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
+    .status-sub { font-size: 0.9rem; color: #666; margin-top: 5px; min-height: 1.2em; }
+
+    .control-bar {
+        margin-top: 20px;
+        display: flex;
+        gap: 20px;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .bet-selector-btn {
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 0.3s;
+        min-width: 200px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bet-selector-btn:hover { border-color: var(--neon-accent); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+
+    .spin-trigger {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: none;
+        background: radial-gradient(circle at 30% 30%, var(--gold-bright), var(--gold));
+        color: #3e2723;
+        font-weight: 900;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
+        transition: transform 0.1s, box-shadow 0.1s;
+        text-transform: uppercase;
+    }
+    .spin-trigger:active { transform: scale(0.95); box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
+    .spin-trigger:disabled { filter: grayscale(100%); cursor: not-allowed; transform: none; }
+
+    .overlay-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100;
+        display: flex; justify-content: center; align-items: center;
+        backdrop-filter: blur(5px);
+    }
+    
+    .bet-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+        background: #1a1a1a; padding: 30px; border: 2px solid var(--gold); border-radius: 20px;
+    }
+    
+    .chip-btn {
+        background: linear-gradient(145deg, #333, #222);
+        border: 2px solid #444; color: white;
+        width: 80px; height: 80px; border-radius: 50%;
+        font-weight: bold; font-size: 1.1rem; cursor: pointer;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    }
+    .chip-btn:hover { transform: translateY(-3px); border-color: var(--gold); color: var(--gold); }
+
+    @@keyframes blurMove {
+        0% { transform: translateY(0); filter: blur(2px); }
+        50% { transform: translateY(5px); filter: blur(4px); }
+        100% { transform: translateY(0); filter: blur(2px); }
+    }
+    
+    .win-pulse { animation: pulseGreen 1s infinite; color: var(--win-green) !important; text-shadow: 0 0 15px var(--win-green); }
+    @@keyframes pulseGreen { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    .help-icon {
+        position: absolute; top: 20px; right: 20px; color: #555;
+        font-size: 1.5rem; cursor: pointer; border: 1px solid #555; border-radius: 50%;
+        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    }
+    .help-icon:hover { color: white; border-color: white; }
+</style>
+
+<div class="casino-floor">
+    <div class="machine-cabinet">
+        <div class="help-icon" @onclick="() => _showRules = true">?</div>
+        <div class="brand-header">ROYAL RGS</div>
+
+        <div class="reels-display">
+            <div class="reel-box">
+                <span class="symbol-text @(_isSpinning ? "spinning-reel" : "")">@_reel1</span>
+            </div>
+            <div class="reel-box">
+                <span class="symbol-text @(_isSpinning ? "spinning-reel" : "")">@_reel2</span>
+            </div>
+            <div class="reel-box">
+                <span class="symbol-text @(_isSpinning ? "spinning-reel" : "")">@_reel3</span>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="stat-card">
+                <span class="stat-label">Balance</span>
+                <span class="stat-value" style="color: @(_lastWin > 0 ? "var(--win-green)" : "white")">
+                    @_balance.ToString("F2")€
+                </span>
+            </div>
+
+            <div class="status-monitor">
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="status-main" style="color: var(--loss-red)">ERROR</div>
+                    <div class="status-sub">@_errorMessage</div>
+                }
+                else
+                {
+                    <div class="status-main @(_lastWin > 0 ? "win-pulse" : "")">@_mainStatus</div>
+                    <div class="status-sub">@_subStatus</div>
+                }
+            </div>
+
+            <div class="stat-card" style="border-left-color: var(--gold); align-items: flex-end;">
+                <span class="stat-label">Last Win</span>
+                <span class="stat-value @(_lastWin > 0 ? "win-pulse" : "")">
+                    @_lastWin.ToString("F2")€
+                </span>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <button class="bet-selector-btn" @onclick="() => _showBetMenu = true" disabled="@_isSpinning">
+                <span style="font-size:0.8rem; color:#888;">CURRENT BET</span>
+                <span style="font-weight:bold; color:var(--gold);">@_currentBet.ToString("F2")€</span>
+            </button>
+
+            <button class="spin-trigger" @onclick="SpinReels" disabled="@_isSpinning">
+                @if (_isSpinning) { <span>...</span> } else { <span>SPIN</span> }
+            </button>
+        </div>
+    </div>
+
+    @if (_showBetMenu)
+    {
+        <div class="overlay-backdrop" @onclick="() => _showBetMenu = false">
+            <div class="bet-grid" @onclick:stopPropagation>
+                @foreach (var bet in _availableBets)
+                {
+                    <button class="chip-btn" @onclick="() => SelectBet(bet)">@bet€</button>
+                }
+            </div>
+        </div>
+    }
+
+    @if (_showRules)
+    {
+        <div class="overlay-backdrop" @onclick="() => _showRules = false">
+            <div style="background:#111; padding:40px; border:2px solid var(--gold); border-radius:10px; color:white; width:400px;" @onclick:stopPropagation>
+                <h2 style="color:var(--gold); margin-top:0; text-align:center;">PAYTABLE</h2>
+                <hr style="border-color:#333;"/>
+                <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>7️⃣ 7️⃣ 7️⃣</span> <span style="color:var(--gold)">x50</span></div>
+                <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>⭐️ ⭐️ ⭐️</span> <span style="color:var(--gold)">x20</span></div>
+                <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>🍒/🔔/etc (x3)</span> <span>x10</span></div>
+                <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>Any Pair (x2)</span> <span>x1.5</span></div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly string[] _symbolMap = { "🍒", "🍋", "🍊", "🍉", "🔔", "⭐️", "7️⃣" };
+    private readonly decimal[] _availableBets = { 0.10m, 0.50m, 1.00m, 2.00m, 5.00m, 10.00m, 20.00m, 50.00m, 100.00m };
+
+    private string _reel1 = "7️⃣";
+    private string _reel2 = "7️⃣";
+    private string _reel3 = "7️⃣";
+
+    private decimal _balance = 1000m;
+    private decimal _currentBet = 1.00m;
+    private decimal _lastWin = 0m;
+
+    private string _mainStatus = "READY TO PLAY";
+    private string _subStatus = "Select your bet and spin";
+    private string _errorMessage = "";
+
+    private bool _isSpinning = false;
+    private bool _showBetMenu = false;
+    private bool _showRules = false;
+    
+    private CancellationTokenSource? _spinCts;
+
+    private void SelectBet(decimal amount)
+    {
+        _currentBet = amount;
+        _showBetMenu = false;
+        _mainStatus = "BET UPDATED";
+        _subStatus = $"New bet set to {amount:F2}€";
+    }
+
+    private async Task SpinReels()
+    {
+        if (_balance < _currentBet)
+        {
+            _errorMessage = "INSUFFICIENT FUNDS";
+            _subStatus = "Please deposit more money";
+            return;
+        }
+
+        if (_spinCts != null)
+        {
+            _spinCts.Cancel();
+            _spinCts.Dispose();
+            _spinCts = null;
+        }
+
+        _isSpinning = true;
+        _errorMessage = "";
+        _lastWin = 0;
+        _mainStatus = "SPINNING...";
+        _subStatus = "Good luck!";
+        
+        _spinCts = new CancellationTokenSource();
+        var animationTask = AnimateReels(_spinCts.Token);
+
+        try
+        {
+            var payload = new { Amount = _currentBet, CurrentBalance = _balance };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            
+            var apiTask = Http.PostAsJsonAsync("http://localhost:5001/api/casino/spin", payload);
+
+            await Task.WhenAll(apiTask, Task.Delay(1500));
+
+            var response = await apiTask;
+            
+            _spinCts.Cancel();
+            try { await animationTask; } catch (TaskCanceledException) { } 
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ServerSpinResult>(options);
+                
+                if (result != null)
+                {
+                    _reel1 = _symbolMap[result.r1];
+                    _reel2 = _symbolMap[result.r2];
+                    _reel3 = _symbolMap[result.r3];
+                    _balance = result.currentBalance;
+                    _lastWin = result.win;
+
+                    if (_lastWin > 0)
+                    {
+                        _mainStatus = "BIG WIN!";
+                        _subStatus = $"You won {_lastWin:F2}€";
+                    }
+                    else
+                    {
+                        _mainStatus = "NO LUCK";
+                        _subStatus = "Try again!";
+                    }
+                }
+            }
+            else
+            {
+                _errorMessage = "SERVER ERROR";
+                _subStatus = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "FATAL ERROR";
+            _subStatus = ex.Message;
+        }
+        finally
+        {
+            _isSpinning = false;
+            if (_spinCts != null)
+            {
+                _spinCts.Dispose();
+                _spinCts = null;
+            }
+        }
+    }
+
+    private async Task AnimateReels(CancellationToken token)
+    {
+        var rng = new Random();
+        try 
+        {
+            while (!token.IsCancellationRequested)
+            {
+                _reel1 = _symbolMap[rng.Next(_symbolMap.Length)];
+                _reel2 = _symbolMap[rng.Next(_symbolMap.Length)];
+                _reel3 = _symbolMap[rng.Next(_symbolMap.Length)];
+                StateHasChanged();
+                await Task.Delay(60, token);
+            }
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    public void Dispose()
+    {
+        _spinCts?.Cancel();
+        _spinCts?.Dispose();
+    }
+
+    public class ServerSpinResult
+    {
+        public int r1 { get; set; }
+        public int r2 { get; set; }
+        public int r3 { get; set; }
+        public decimal win { get; set; }
+        public decimal currentBalance { get; set; }
+        public string message { get; set; } = "";
+    }
+}

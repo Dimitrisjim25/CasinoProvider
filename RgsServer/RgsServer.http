@@ -1,0 +1,6 @@
+@RgsServer_HostAddress = http://localhost:5001
+
+GET {{RgsServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

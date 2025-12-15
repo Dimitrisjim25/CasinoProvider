@@ -1,0 +1,194 @@
+﻿@page "/"
+
+<PageTitle>Royal RGS - Lobby</PageTitle>
+
+<div class="lobby-container">
+    
+    <div class="hero-wrapper">
+        <div class="brand-logo">🎰</div>
+        <h1 class="main-headline">WELCOME TO <span class="highlight-gold">ROYAL RGS</span></h1>
+    <p class="sub-headline">Premium Slots • Instant Payouts • Casino Provider</p>
+        
+        <div class="jackpot-display">
+            <span class="jackpot-label">GRAND JACKPOT</span>
+            <span class="jackpot-value">1,024,500.00 €</span>
+        </div>
+
+        <a href="casino" class="cta-button">
+            PLAY NOW
+        </a>
+    </div>
+
+    <div class="features-row">
+        <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h3>Instant Action</h3>
+            <p>No delays, lightning fast spins.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">🛡️</div>
+            <h3>Secure & Fair</h3>
+            <p>RNG Certified algorithms.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">💎</div>
+            <h3>VIP Rewards</h3>
+            <p>Earn loyalty points daily.</p>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .lobby-container {
+        min-height: 100vh;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        color: white;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .hero-wrapper {
+        text-align: center;
+        max-width: 800px;
+        margin-bottom: 60px;
+        animation: fadeSlideUp 0.8s ease-out;
+    }
+
+    .brand-logo {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    .main-headline {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+    }
+
+    .highlight-gold {
+        color: #d4af37;
+        background: -webkit-linear-gradient(#ffd700, #d4af37);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .sub-headline {
+        color: #888;
+        font-size: 1.2rem;
+        font-weight: 300;
+        margin-bottom: 40px;
+        letter-spacing: 1px;
+    }
+
+    .jackpot-display {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #d4af37;
+        border-radius: 12px;
+        padding: 20px 40px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    }
+
+    .jackpot-label {
+        color: #d4af37;
+        font-size: 0.9rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+    }
+
+    .jackpot-value {
+        color: #fff;
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+        color: #000;
+        font-size: 1.2rem;
+        font-weight: 800;
+        padding: 18px 60px;
+        border-radius: 50px;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cta-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(212, 175, 55, 0.5);
+        background: #fff;
+    }
+
+    .features-row {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    .feature-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        border-radius: 16px;
+        width: 300px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: #d4af37;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .feature-item h3 {
+        color: #fff;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+
+    .feature-item p {
+        color: #888;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    @@keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes floating {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0); }
+    }
+</style>

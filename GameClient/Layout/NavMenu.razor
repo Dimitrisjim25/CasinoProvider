@@ -1,0 +1,133 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">🎰 Super Casino</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        
+        <div class="menu-label">Gaming</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="icon">🏠</span> Lobby
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="casino">
+                <span class="icon">🎰</span> Play Slots
+            </NavLink>
+        </div>
+
+        <div class="menu-label">My Account</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="wallet">
+                <span class="icon">💰</span> My Wallet
+                <span class="badge-balance">1.000€</span> 
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <span class="icon">👤</span> Personal Info
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="settings">
+                <span class="icon">⚙️</span> Settings
+            </NavLink>
+        </div>
+
+        <div class="menu-label">System</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="icon">➕</span> Test Counter
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
+
+<style>
+    .sidebar {
+        background-image: linear-gradient(180deg, #121212 0%, #000000 100%);
+        border-right: 1px solid #333;
+    }
+
+    .menu-label {
+        color: #666;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 15px 20px 5px 20px;
+        letter-spacing: 1px;
+    }
+
+    .nav-item a {
+        color: #e0e0e0 !important;
+        font-weight: 500;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        margin: 2px 10px;
+    }
+
+    .nav-item a:hover {
+        background-color: rgba(241, 196, 15, 0.15) !important;
+        color: #fff !important;
+        transform: translateX(5px);
+        box-shadow: inset 3px 0 0 #f1c40f;
+    }
+
+    .nav-item a.active {
+        background-color: #f1c40f !important;
+        color: #000 !important;
+        font-weight: bold;
+        box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+    }
+
+    .icon {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        width: 25px;
+        text-align: center;
+    }
+
+    .badge-balance {
+        background-color: #2ecc71;
+        color: black;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: auto;
+        font-weight: bold;
+    }
+
+    .navbar-brand {
+        font-weight: 800;
+        color: #f1c40f !important;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+</style>
