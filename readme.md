@@ -20,6 +20,13 @@ A Full-Stack Slot Machine technical demo built with .NET 8, demonstrating a Remo
 
 ![Casino Demo Preview](assets/preview.png)
 
+## Key Architectural Features
+
+* **Server-Authoritative Logic:** The client is purely for visualization. All game logic, win calculations, and balance updates happen strictly on the server.
+* **Strict State Validation:** The server validates every spin request against its internal state to prevent balance manipulation or negative funds.
+* **Stateless Frontend:** The Blazor client does not hold the "truth". It synchronizes with the server state on initialization and after every transaction.
+* **Secure Data Transfer:** The client sends only the user's intent (e.g., "Bet 1.00"), never the outcome or the user's current balance.
+
 ## Application Structure
 
 The application is divided into two main areas:
@@ -38,14 +45,12 @@ The application is divided into two main areas:
 
 The primary interaction follows this flow:
 
-1.  User clicks the "SPIN" button.
-2.  Client sends a POST request to `api/casino/spin` with the simulated bet amount.
-3.  RGS Server executes the RNG to determine reel symbols and calculates simulated wins.
-4.  Server responds with JSON containing:
-    * Reel positions
-    * Simulated win amount
-    * Simulated balance
-5.  Client receives the response and updates UI accordingly (animations, balance display).
+1.  **Initialization:** On load, the Client requests the current balance from the Server (`GET /balance`) to ensure synchronization.
+2.  **Action:** User clicks "SPIN". Client sends `POST api/casino/spin` with the bet amount only.
+3.  **Validation:** Server checks its **in-memory state** to verify sufficient funds (Client balance is ignored for security).
+4.  **Execution:** Server executes the RNG logic and calculates wins.
+5.  **State Update:** Server updates the authoritative state and responds with the new balance and reel positions.
+6.  **UI Update:** Client receives the data and animates the result.
 
 > **Important:** All values are simulated for demo purposes only. No real money is involved.
 
@@ -55,8 +60,7 @@ The primary interaction follows this flow:
 
 In a real-world environment, additional security and architecture would be required:
 
-* **State Management:** Client session state should never be trusted. Balances are always stored securely on the server.
-* **Database:** Use a transactional database (SQL Server/PostgreSQL) for ACID compliance.
+* **Persistent Storage:** Currently, state is held In-Memory (RAM) for high-performance demonstration. In production, this would be replaced with a transactional Database (SQL) for persistence across server restarts.
 * **Authentication:** JWT/OAuth to secure endpoints and identify users.
 * **RNG:** Replace .NET Random with a certified Cryptographically Secure PRNG for fair gameplay.
 * **Logging & Audit:** All transactions and game results logged server-side.

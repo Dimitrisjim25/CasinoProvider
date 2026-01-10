@@ -299,7 +299,7 @@
     private string _reel2 = "7️⃣";
     private string _reel3 = "7️⃣";
 
-    private decimal _balance = 1000m;
+    private decimal _balance = 1000m; // this changes based on server data
     private decimal _currentBet = 1.00m;
     private decimal _lastWin = 0m;
 
@@ -312,6 +312,24 @@
     private bool _showRules = false;
     
     private CancellationTokenSource? _spinCts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Asking data from server about balance
+            var result = await Http.GetFromJsonAsync<BalanceResponse>("http://localhost:5001/api/casino/balance");
+            
+            if (result != null)
+            {
+                _balance = result.balance;
+            }
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Server not reachable. Using default balance.");
+        }
+    }
 
     private void SelectBet(decimal amount)
     {
@@ -348,7 +366,7 @@
 
         try
         {
-            var payload = new { Amount = _currentBet, CurrentBalance = _balance };
+            var payload = new { Amount = _currentBet };
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             
             var apiTask = Http.PostAsJsonAsync("http://localhost:5001/api/casino/spin", payload);
@@ -437,5 +455,11 @@
         public decimal win { get; set; }
         public decimal currentBalance { get; set; }
         public string message { get; set; } = "";
+    }
+
+    // This class is about server balance
+    public class BalanceResponse
+    {
+        public decimal balance { get; set; }
     }
 }
